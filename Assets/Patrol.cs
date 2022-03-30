@@ -7,12 +7,16 @@ using System.Collections;
 public class Patrol : MonoBehaviour {
 
     public Transform[] points;
+    public float reactionTime = 1;      // how long can we see the player before springing into action.
     private int destPoint = 0;
     private NavMeshAgent agent;
+
+    private AIFoV fov;
 
 
     void Start () {
         agent = GetComponent<NavMeshAgent>();
+        fov = GetComponent<AIFoV>();
 
         // Disabling auto-braking allows for continuous movement
         // between points (ie, the agent doesn't slow down as it
@@ -36,11 +40,31 @@ public class Patrol : MonoBehaviour {
         destPoint = (destPoint + 1) % points.Length;
     }
 
+    private float eyesOnPlayerTimer = 0;
 
     void Update () {
+        if(fov.canSeePlayer == true) {
+            eyesOnPlayerTimer += Time.deltaTime;
+            if(eyesOnPlayerTimer > reactionTime) {
+                agent.destination = fov.player.position;
+            }
+        }
+        else {
+            //reset the eyesOnPlayerTimer if we lose sight of the player.
+            eyesOnPlayerTimer = 0;
+        }
+
+        Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
+
         // Choose the next destination point when the agent gets
         // close to the current one.
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
-            GotoNextPoint();
+            StartCoroutine(WaitAtPatrolPoint());
+    }
+
+    IEnumerator WaitAtPatrolPoint() {
+        // play the waiting animation
+        yield return new WaitForSeconds(2);
+        GotoNextPoint();
     }
 }

@@ -2027,6 +2027,7 @@ MonoBehaviour:
   - {fileID: 1347311021}
   - {fileID: 487066669}
   - {fileID: 1112897997}
+  reactionTime: 1
 --- !u!195 &1940939556
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2120,7 +2121,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940939554}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.5646744, y: 0.7500019, z: -34.014202}
+  m_LocalPosition: {x: -7.5646744, y: 1.0000019, z: -34.014202}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 615277063}
@@ -2143,3 +2144,4 @@ MonoBehaviour:
   player: {fileID: 1732217569}
   fieldOfView: 45
   rend: {fileID: 963191361}
+  canSeePlayer: 0

@@ -55,8 +55,5 @@ public class SecurityCamera : MonoBehaviour
         {
             rend.material.color = Color.black;
         }
-        
-            
-    
     }
 }
