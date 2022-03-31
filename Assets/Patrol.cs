@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-
+[RequireComponent(typeof(AIFoV))]
 public class Patrol : MonoBehaviour {
 
     public Transform[] points;
@@ -21,7 +21,7 @@ public class Patrol : MonoBehaviour {
         // Disabling auto-braking allows for continuous movement
         // between points (ie, the agent doesn't slow down as it
         // approaches a destination point).
-        agent.autoBraking = false;
+        // agent.autoBraking = false;
 
         GotoNextPoint();
     }
@@ -45,8 +45,10 @@ public class Patrol : MonoBehaviour {
     void Update () {
         if(fov.canSeePlayer == true) {
             eyesOnPlayerTimer += Time.deltaTime;
+            Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
             if(eyesOnPlayerTimer > reactionTime) {
                 agent.destination = fov.player.position;
+                return;     // don't look at anything else in the Update function.
             }
         }
         else {
@@ -54,7 +56,7 @@ public class Patrol : MonoBehaviour {
             eyesOnPlayerTimer = 0;
         }
 
-        Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
+        
 
         // Choose the next destination point when the agent gets
         // close to the current one.
