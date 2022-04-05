@@ -1,15 +1,22 @@
 // Patrol.cs
 using UnityEngine;
-using UnityEngine.AI;
-using System.Collections;
+using UnityEngine.AI;                   // for NavMeshAgent
+using System.Collections;               // for IEnumerator
+using System.Collections.Generic;       // for lists
 
 [RequireComponent(typeof(AIFoV))]
 public class Patrol : MonoBehaviour {
 
     public Transform[] points;
     public float reactionTime = 1;      // how long can we see the player before springing into action.
+    public List<Transform> looks = new List<Transform>();
+    public Transform eyePivot;
+    public AnimationCurve curve;
+
     private int destPoint = 0;
     private NavMeshAgent agent;
+
+    bool stopped = false;
 
     private AIFoV fov;
 
@@ -45,7 +52,7 @@ public class Patrol : MonoBehaviour {
     void Update () {
         if(fov.canSeePlayer == true) {
             eyesOnPlayerTimer += Time.deltaTime;
-            Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
+            // Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
             if(eyesOnPlayerTimer > reactionTime) {
                 agent.destination = fov.player.position;
                 return;     // don't look at anything else in the Update function.
@@ -56,17 +63,49 @@ public class Patrol : MonoBehaviour {
             eyesOnPlayerTimer = 0;
         }
 
-        
-
         // Choose the next destination point when the agent gets
         // close to the current one.
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
-            StartCoroutine(WaitAtPatrolPoint());
+            if(!stopped)StartCoroutine(WaitAtPatrolPoint());
     }
 
     IEnumerator WaitAtPatrolPoint() {
+        stopped = true;
         // play the waiting animation
-        yield return new WaitForSeconds(2);
+        // stop
+        // Debug.Log("Stopping.");
+        // agent.destination = this.transform.position;
+        // look left and right
+        // lerp -90 degrees and wait - or rotate
+        float timer = 0f;
+        while(timer < 1) {
+            eyePivot.rotation = Quaternion.Lerp(looks[0].rotation, looks[1].rotation, curve.Evaluate(timer));
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(1);
+
+        // lerp 180 degrees and wait
+        timer = 0f;
+        while(timer < 1) {
+            eyePivot.rotation = Quaternion.Lerp(looks[1].rotation, looks[2].rotation, curve.Evaluate(timer));
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(1);
+
+        // lerp -90 degrees and go to next point.
+        timer = 0f;
+        while(timer < 1) {
+            eyePivot.rotation = Quaternion.Lerp(looks[2].rotation, looks[0].rotation, curve.Evaluate(timer));
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        
+        Debug.Log("Going to Next Point.");
+        stopped = false;
         GotoNextPoint();
     }
 }

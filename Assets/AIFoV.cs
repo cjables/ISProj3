@@ -6,7 +6,7 @@ public class AIFoV : MonoBehaviour
 {
     public Transform player;
     public float fieldOfView = 45;
-    Transform emitter;
+    public Transform emitter;
 
     public Renderer rend;
 
@@ -15,7 +15,7 @@ public class AIFoV : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        emitter = transform.GetChild(0);
+        if(emitter == null) emitter = transform.GetChild(0);
     }
 
     // Update is called once per frame
@@ -25,10 +25,10 @@ public class AIFoV : MonoBehaviour
 
         Vector3 rayDirection = (player.position + Vector3.up) - emitter.position;
 
-        Vector3 endVector = Quaternion.AngleAxis(fieldOfView , Vector3.up) * transform.forward * 10;
+        Vector3 endVector = Quaternion.AngleAxis(fieldOfView , Vector3.up) * emitter.forward * 10;
         Debug.DrawRay(emitter.position, endVector, Color.magenta);
 
-        Vector3 endVector2 = Quaternion.AngleAxis(-fieldOfView , Vector3.up) * transform.forward * 10;
+        Vector3 endVector2 = Quaternion.AngleAxis(-fieldOfView , Vector3.up) * emitter.forward * 10;
         Debug.DrawRay(emitter.position, endVector2, Color.magenta);
 
 
