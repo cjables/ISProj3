@@ -19,12 +19,16 @@ public class Patrol : MonoBehaviour {
     bool stopped = false;
     bool hunting = false;
 
+    IEnumerator stopAndLook;
+
     private AIFoV fov;
 
 
     void Start () {
         agent = GetComponent<NavMeshAgent>();
         fov = GetComponent<AIFoV>();
+
+        stopAndLook = WaitAtPatrolPoint();
 
         // Disabling auto-braking allows for continuous movement
         // between points (ie, the agent doesn't slow down as it
@@ -57,24 +61,34 @@ public class Patrol : MonoBehaviour {
             if(eyesOnPlayerTimer > reactionTime) {
                 hunting = true;
                 if(stopped) {
-                    StopCoroutine(WaitAtPatrolPoint());
+                    StopCoroutine(stopAndLook);
                     stopped = false;
                     eyePivot.rotation = looks[0].rotation;
                 }
-                agent.destination = fov.player.position;
-                return;     // don't look at anything else in the Update function.
+                // return;     // don't look at anything else in the Update function.
             }
         }
         else {
             //reset the eyesOnPlayerTimer if we lose sight of the player.
+            // this is stupid code, I need to change it.
             eyesOnPlayerTimer = 0;
+        }
+
+        if(hunting) {
+            agent.destination = fov.player.position;
+            float distance = Vector3.Distance(transform.position, fov.player.position);
+            Debug.Log("Distance: " + distance);
+            if(distance > 20) {
+                hunting = false;
+                StartCoroutine(stopAndLook);
+            }
         }
 
         // Choose the next destination point when the agent gets
         // close to the current one.
         if (!agent.pathPending && agent.remainingDistance < 0.5f) {
-            if(hunting) hunting = false;
-            if(!stopped)StartCoroutine(WaitAtPatrolPoint());
+            if(hunting) return;     // hunt the player forever.
+            if(!stopped)StartCoroutine(stopAndLook);
         }
     }
 
