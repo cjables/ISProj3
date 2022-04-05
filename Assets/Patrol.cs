@@ -17,6 +17,7 @@ public class Patrol : MonoBehaviour {
     private NavMeshAgent agent;
 
     bool stopped = false;
+    bool hunting = false;
 
     private AIFoV fov;
 
@@ -54,6 +55,12 @@ public class Patrol : MonoBehaviour {
             eyesOnPlayerTimer += Time.deltaTime;
             // Debug.Log("EyesOnPlayerTimer: " + eyesOnPlayerTimer);
             if(eyesOnPlayerTimer > reactionTime) {
+                hunting = true;
+                if(stopped) {
+                    StopCoroutine(WaitAtPatrolPoint());
+                    stopped = false;
+                    eyePivot.rotation = looks[0].rotation;
+                }
                 agent.destination = fov.player.position;
                 return;     // don't look at anything else in the Update function.
             }
@@ -65,11 +72,14 @@ public class Patrol : MonoBehaviour {
 
         // Choose the next destination point when the agent gets
         // close to the current one.
-        if (!agent.pathPending && agent.remainingDistance < 0.5f)
+        if (!agent.pathPending && agent.remainingDistance < 0.5f) {
+            if(hunting) hunting = false;
             if(!stopped)StartCoroutine(WaitAtPatrolPoint());
+        }
     }
 
     IEnumerator WaitAtPatrolPoint() {
+        Debug.Log("Starting WaitAtPatrolPoint()");
         stopped = true;
         // play the waiting animation
         // stop
