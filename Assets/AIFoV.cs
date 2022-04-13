@@ -12,6 +12,8 @@ public class AIFoV : MonoBehaviour
 
     public bool canSeePlayer = false;
 
+    public float sightDistance = 10f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,7 +38,7 @@ public class AIFoV : MonoBehaviour
 
         if(angle < fieldOfView) {
             // draw a ray
-            if(Physics.Raycast(emitter.position, rayDirection, out hit, 30f)) {
+            if(Physics.Raycast(emitter.position, rayDirection, out hit, sightDistance)) {
                 if(hit.collider.CompareTag("Player")) {
                     canSeePlayer = true;
                     Debug.DrawRay(emitter.position, rayDirection, Color.green);
